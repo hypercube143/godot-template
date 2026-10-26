@@ -15,7 +15,6 @@ func _ready() -> void:
 	if not save_meta_file_exists():
 		create_save_meta_file()
 		Util.dprint("save meta file created as one didn't exist")
-	Util.dprint(SAVES_META_FILEPATH)
 
 func get_save_path_from_id(save_id: int):
 	return SAVE_LOCATION + str(save_id) + ".res"
