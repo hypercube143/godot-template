@@ -9,5 +9,3 @@ class_name Save extends Resource
 @export var save_created_timestamp: float = 0
 @export var save_updated_timestamp: float = 0
 @export var thumbnail_path: String = ""
-
-@export var testing_var: String = ""
