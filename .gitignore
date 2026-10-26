@@ -4,3 +4,4 @@ template/android/
 # My own - don't want save files saving (ironic, ik)
 template/data/saves/*.res
 template/data/saves/*.ini
+template/data/settings/*.ini

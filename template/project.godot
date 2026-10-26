@@ -20,7 +20,7 @@ GameManager="*uid://b1r5dm3ag3qhy"
 SaveManager="*uid://c40way80ovjx3"
 SignalBus="*uid://ripdbtlpo20h"
 Util="*uid://1e7dlr5w8wcf"
-ConfigManager="*uid://df016gv43jatx"
+SettingsManager="*uid://df016gv43jatx"
 AudioManager="*uid://bof36u8otn0q8"
 
 [display]
