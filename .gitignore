@@ -1,0 +1,6 @@
+# Godot 4+ specific ignores
+template/.godot/
+template/android/
+# My own - don't want save files saving (ironic, ik)
+template/data/saves/*.res
+template/data/saves/*.ini
