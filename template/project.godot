@@ -28,6 +28,15 @@ AudioManager="*uid://bof36u8otn0q8"
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
+[file_customization]
+
+folder_colors={
+"res://data/": "red",
+"res://src/": "green",
+"res://src/scenes/": "green",
+"res://src/scripts/": "blue"
+}
+
 [physics]
 
 3d/physics_engine="Jolt Physics"
