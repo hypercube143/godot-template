@@ -26,6 +26,7 @@ class VNOption:
 		return 'VNOption(text = "{text}", next = {next})'.format({"text": text, "next": next})
 
 class VNSection:
+	# necessary to implement
 	var str_id: String
 	var dialog: String
 	var speaker_str: String
@@ -34,6 +35,10 @@ class VNSection:
 	var next: int 
 	var sections: PackedStringArray
 	var options: Array[VNOption]
+	
+	# NON NECESSARY / SCOPE CREEP STUFF / FOR THE FUTURE
+	enum moods {DEFAULT, HAPPY, SAD} # TODO
+	var mood: moods
 	
 	func _init(config_file: ConfigFile, id: int) -> void:
 		parse_from_config(config_file, id)
@@ -81,28 +86,41 @@ class VNSection:
 					# the section loaded when option selected
 					# same as "next" value elsewhere
 					
-					Util.dprint("tyring to load 'next' for section '" + section + "'")
+					#Util.dprint("trying to load 'next' for section '" + section + "'")
 					var option_next: int = config_file.get_value(section, "next", -1)	
 				
 					var option: VNOption = VNOption.new(option_text, option_next)
 					options.append(option)
+					
 			
-			print("vn vals:\ndialog = {dialog}\nspeaker = {speaker}\nauto_skip = {auto_skip}\ntime = {time}\nnext = {next}\nsections = {sections}\noptions = {options}\n".format(
-				{
-					"dialog": dialog,
-					"speaker": speaker_str,
-					"auto_skip": auto_skip,
-					"time": time,
-					"next": next,
-					"sections": sections,
-					"options": options
-				}
-			))
+			# NON NECESSARY / SCOPE CREEP STUFF TODO
+			# convert mood name to value. for example "HAPPY" will become 1
+			var mood_str: String = config_file.get_value(str_id, "mood", Util.enum_name_as_string(moods, moods.DEFAULT))
+			var mood_value: moods = moods.get(mood_str) # this is an int
+			mood = mood_value
+	
+	func _to_string() -> String:
+		return "VNSection(\n\tdialog = {dialog}\n\tspeaker = {speaker}\n\tauto_skip = {auto_skip}\n\ttime = {time}\n\tnext = {next}\n\tsections = {sections}\n\toptions = {options}\n\tmood = {mood}\n)".format(
+			{
+				"dialog": dialog,
+				"speaker": speaker_str,
+				"auto_skip": auto_skip,
+				"time": time,
+				"next": next,
+				"sections": sections,
+				"options": options,
+				
+				"mood": mood
+			}
+		)
 
 
 func _ready() -> void:
 	load_vn_script(ACTS.I)
 	var vn_section0: VNSection = VNSection.new(vn_config_file, 0) 
-	Util.dprint("option 1 next = " + str(vn_section0.options[0].next))
-	var vn_section1: VNSection = VNSection.new(vn_config_file, vn_section0.options[0].next)
+	
+	print(vn_section0)
+	
+	#Util.dprint("option 1 next = " + str(vn_section0.options[0].next))
+	#var vn_section1: VNSection = VNSection.new(vn_config_file, vn_section0.options[0].next)
 	
