@@ -22,6 +22,7 @@ SignalBus="*uid://ripdbtlpo20h"
 Util="*uid://1e7dlr5w8wcf"
 SettingsManager="*uid://df016gv43jatx"
 AudioManager="*uid://bof36u8otn0q8"
+VNManager="*uid://cpxkqbmorb3rw"
 
 [display]
 

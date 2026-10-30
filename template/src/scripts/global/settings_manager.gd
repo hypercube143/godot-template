@@ -7,7 +7,6 @@ const SETTINGS_FILEPATH: String = SETTINGS_DIR + SETTINGS_FILENAME + ".ini"
 
 var settings_config: ConfigFile
 
-
 func _ready() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(SETTINGS_DIR))
 	if not settings_config_exists():

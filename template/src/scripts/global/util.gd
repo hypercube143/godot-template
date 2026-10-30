@@ -10,6 +10,11 @@ func serialze_path_name(save_name: String):
 			serialized += c
 	return serialized
 	
+	
+# ENUM ##################################################################################################################
+
+func enum_name_as_string(e: Dictionary, value: int) -> String:
+	return e.find_key(value)
 
 # DEBUG FUNCTIONS #######################################################################################################
 
