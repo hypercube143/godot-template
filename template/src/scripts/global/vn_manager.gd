@@ -1,20 +1,71 @@
 extends Node
 
 const VN_DIR: String = "data/vn/"
+const VN_SETTINGS_FILENAME: String = VN_DIR + "settings.ini"
+const VN_SPEAKERS_FILENAME: String = VN_DIR + "speakers.ini"
 
-var vn_config_file: ConfigFile
+var vn_act_file: ConfigFile
+var vn_settings_file: ConfigFile
+var vn_speakers_file: ConfigFile
+
+var speakers: Dictionary[String, VNSpeaker] = {}
 
 enum ACTS {I, II, III} # represented as I.ini in file form
 
 var current_section_id: int = 0 # the [section] eg [0] as .ini section
 
-func load_vn_script(act: ACTS) -> void:
+# default values TODO: these will be loaded from settings file
+var default_speaking_rate: float = 25 
+
+func load_vn_act_file(act: ACTS) -> void:
 	var act_string: String = Util.enum_name_as_string(ACTS, act) # "I", "II" etc.
-	vn_config_file = ConfigFile.new()
+	vn_act_file = ConfigFile.new()
 	var filename: String = VN_DIR + act_string + ".ini"
-	var err: Error = vn_config_file.load(filename)
+	var err: Error = vn_act_file.load(filename)
 	if err != OK:
-		push_error("couldn't load vn file " + "'" + filename + "'")
+		push_error("failed to load vn act file " + "'" + filename + "'")
+		
+func load_vn_settings_file() -> void:
+	vn_settings_file = ConfigFile.new()
+	var err: Error = vn_settings_file.load(VN_SETTINGS_FILENAME)
+	if err != OK:
+		push_error("failed to load vn settings file " + "'" + VN_SETTINGS_FILENAME + "'")
+		
+func load_vn_speakers_file() -> void:
+	vn_speakers_file = ConfigFile.new()
+	var err: Error = vn_speakers_file.load(VN_SPEAKERS_FILENAME)
+	if err != OK:
+		push_error("failed to load vn speakers file " + "'" + VN_SPEAKERS_FILENAME + "'")
+		return
+	
+	print("loading speakers")
+	var speaker: VNSpeaker
+	for section: String in vn_speakers_file.get_sections():
+		
+		var section_components: PackedStringArray = section.split(".")
+		var speaker_key: String = section_components[0]
+		
+		if not section.contains("."): # if just the speaker name
+			speaker = VNSpeaker.new()
+			var display_name: String = vn_speakers_file.get_value(section, "display_name", "") # empty name if not specified
+			var default_speaking_rate: float = vn_speakers_file.get_value(section, "default_speaking_rate", default_speaking_rate) # if left unspecified default speaking rate is 25
+			speaker.setup(display_name, default_speaking_rate)
+		
+		if len(section_components) > 1:
+			if section_components[1] == "mood": # setting each mood
+				var speaking_rate: float = vn_speakers_file.get_value(section, "speaking_rate", default_speaking_rate)
+				var texture: String = vn_speakers_file.get_value(section, "texture", default_speaking_rate)
+				var mood_key: String = section_components[2]
+				speaker.add_mood(mood_key, speaking_rate, texture)
+			
+			
+			if section_components[1] == "end": # closing, creating speaker, adding to list. there's probably a better way to determine the end of a speaker?
+				speakers[speaker_key] = speaker # not sure if .duplicate() is necessary here
+				print("added speaker: " + str(speaker))
+		print(section)
+				
+		print(speaker)
+		
 
 class VNOption:
 	var text: String
@@ -114,12 +165,52 @@ class VNSection:
 			}
 		)
 
+class VNSpeaker:
+	var display_name: String
+	var default_speaking_rate: float
+	var moods: Dictionary[String, VNMood]
+		
+	func setup(dn: String, dsr: float) -> void:
+		display_name = dn
+		default_speaking_rate = dsr
+	
+	func add_mood(key: String, speaking_rate: float, texture: String):
+		moods[key] = VNMood.new(key, speaking_rate, texture)
+		
+	func _to_string() -> String:
+		return "VNSpeaker(\n\tdisplay_name = {display_name}\n\tdefault_speaking_rate = {default_speaking_rate})\n\tmoods = {moods}\n".format({
+			"display_name": display_name,
+			"default_speaking_rate": default_speaking_rate,
+			"moods": moods
+		})
+
+class VNMood:
+	var key: String
+	var speaking_rate: float
+	var texture: String
+	func _init(k: String, sr: float, t: String) -> void:
+		key = k
+		speaking_rate = speaking_rate
+		texture = t
+	# TODO
+
+func _enter_tree() -> void:
+	print("VN MANAGER ENTERED TREE")
 
 func _ready() -> void:
-	load_vn_script(ACTS.I)
-	var vn_section0: VNSection = VNSection.new(vn_config_file, 0) 
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(VN_DIR))
 	
-	print(vn_section0)
+	print("starting loading vn files")
+	load_vn_settings_file()
+	load_vn_speakers_file()
+	print(speakers)
+	load_vn_act_file(ACTS.I)
+	print("finished loading vn files")
+	
+	#load_vn_script(ACTS.I)
+	#var vn_section0: VNSection = VNSection.new(vn_config_file, 0) 
+	#
+	#print(vn_section0)
 	
 	#Util.dprint("option 1 next = " + str(vn_section0.options[0].next))
 	#var vn_section1: VNSection = VNSection.new(vn_config_file, vn_section0.options[0].next)

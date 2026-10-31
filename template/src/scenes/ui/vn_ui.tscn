@@ -1,0 +1,49 @@
+[gd_scene format=3 uid="uid://bc57kwbprtpbt"]
+
+[ext_resource type="Script" uid="uid://c638eece26xnw" path="res://src/scripts/ui/vn_ui.gd" id="1_d1akx"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_uig60"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_2a24x"]
+size = Vector2(75, 35)
+
+[node name="VN_UI" type="Control" unique_id=1024346080]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_d1akx")
+
+[node name="BGTextureRect" type="TextureRect" parent="." unique_id=309157428]
+layout_mode = 0
+offset_left = 192.0
+offset_top = 451.0
+offset_right = 960.0
+offset_bottom = 624.0
+texture = SubResource("PlaceholderTexture2D_uig60")
+
+[node name="SpeakerNameLabel" type="Label" parent="." unique_id=1604611043]
+layout_mode = 0
+offset_left = 208.0
+offset_top = 464.0
+offset_right = 440.0
+offset_bottom = 503.0
+text = "speaker name"
+
+[node name="DialogLabel" type="RichTextLabel" parent="." unique_id=1080702629]
+layout_mode = 0
+offset_left = 208.0
+offset_top = 496.0
+offset_right = 944.0
+offset_bottom = 575.0
+text = "dialog"
+
+[node name="NextButton" type="TextureButton" parent="." unique_id=701087045]
+layout_mode = 0
+offset_left = 880.0
+offset_top = 584.0
+offset_right = 955.0
+offset_bottom = 619.0
+texture_normal = SubResource("PlaceholderTexture2D_2a24x")
