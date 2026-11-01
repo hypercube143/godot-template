@@ -5,6 +5,9 @@ extends Control
 @onready var dialog_label: RichTextLabel = $DialogLabel
 @onready var next_button: TextureButton = $NextButton
 
+var current_vn_section: VNM.VNSection
+
+var active_tweens: Array[Tween] = []
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -72,7 +75,11 @@ func run_typewriter_code(vn_section: VNM.VNSection):
 				print(char_cursor)
 				print(dialog_length)
 			var time: float = (1.0 / chars_per_second) * val # time it takes to typewrite 'val' many chars according to 'chars_per_second'
-			create_tween().tween_property(dialog_label, "visible_ratio", visible_ratio, time)
+			var dialog_tween: Tween = create_tween()
+			
+			active_tweens.append(dialog_tween)
+			dialog_tween.tween_property(dialog_label, "visible_ratio", visible_ratio, time)
+			dialog_tween.finished.connect(func(): active_tweens.erase(dialog_tween))
 			await get_tree().create_timer(time).timeout
 		if mode == "p": # pause for val seconds
 			await get_tree().create_timer(val).timeout
@@ -81,3 +88,16 @@ func run_typewriter_code(vn_section: VNM.VNSection):
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	pass
+
+func kill_all_tweens():
+	for tween: Tween in active_tweens:
+		tween.kill()
+	active_tweens.clear()
+	
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_released("accept"):
+		print("interrupt")
+		kill_all_tweens()
+		
+		
+		
