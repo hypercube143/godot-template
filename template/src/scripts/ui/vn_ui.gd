@@ -14,16 +14,27 @@ extends Control
 
 var current_vn_section: VNM.VNSection
 
-var active_tweens: Array[Tween] = []
+#var active_tweens: Array[Tween] = []
 
 var dialog_revealed: bool = false
 
-# Tweens
+# Tweens MAKE SURE THESE ALL GET KILLED IN kill_all_tweens()
 var dialog_tween: Tween 
+var speaker_entry_anim_tween: Tween
+var speaker_anim_tween: Tween
 
+# speaker
+var speaker_texture_size: Vector2
+var speaker_anchor_pos: Vector2
+var bottom_of_screen_speaker_pos: Vector2
+var speaker_anim_delay: float = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	speaker_texture_size = speaker_sprite.texture.get_size()
+	speaker_anchor_pos = speaker_anchor.global_position
+	bottom_of_screen_speaker_pos = Vector2(speaker_anchor_pos.x, speaker_anchor_pos.y + speaker_texture_size.y)
+	
 	# on next button press, go to next section
 	next_button.pressed.connect(move_to_next_section)
 	
@@ -46,7 +57,7 @@ func activate_vn_section(id: int):
 	
 	speaker_sprite.texture = load(current_vn_section.vn_mood.texture_path)
 	
-	play_speaker_entry_animation()
+	play_speaker_entry_animation() # this will start the repeating speaker animation later
 	hide_next_button()
 	hide_options()
 	
@@ -56,11 +67,42 @@ func activate_vn_section(id: int):
 	
 func play_speaker_entry_animation():
 	var anim: VNM.VNSection.speaker_entry_animations = current_vn_section.speaker_entry_animation
+	speaker_entry_anim_tween = create_tween()
 	match anim:
-		VNM.VNSection.speaker_entry_animations.JUMP:
-			var speaker_texture_size: Vector2 = speaker_sprite.texture.get_size()
-			speaker_sprite.global_position = Vector2(speaker_anchor.global_position.x, speaker_anchor.global_position.y + speaker_texture_size.y) # just off screen at the bottom
-			create_tween().tween_property(speaker_sprite, "global_position:y", speaker_anchor.global_position.y, 0.6).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		VNM.VNSection.speaker_entry_animations.JUMP_FROM_BOTTOM:
+			speaker_sprite.global_position = bottom_of_screen_speaker_pos # just off screen at the bottom
+			speaker_entry_anim_tween.tween_property(speaker_sprite, "global_position:y", speaker_anchor.global_position.y, 0.6).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		VNM.VNSection.speaker_entry_animations.JUMP_WEAK:
+			#speaker_sprite.global_position = Vector2(speaker_anchor_pos.x, (bottom_of_screen_speaker_pos.y + speaker_anchor_pos.y) / 3.0) # top 3rd section
+			var jump_offset: float = 25
+			speaker_entry_anim_tween.tween_property(speaker_sprite, "global_position:y", speaker_anchor.global_position.y - jump_offset, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+			speaker_entry_anim_tween.tween_property(speaker_sprite, "global_position:y", speaker_anchor.global_position.y, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+		VNM.VNSection.speaker_entry_animations.JUMP_STRONG:
+			var jump_offset: float = 100
+			# speaker_sprite.global_position = Vector2(speaker_anchor_pos.x, (bottom_of_screen_speaker_pos.y + speaker_anchor_pos.y) / 3.0) # top 3rd section
+			speaker_entry_anim_tween.tween_property(speaker_sprite, "global_position:y", speaker_anchor.global_position.y - jump_offset, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+			speaker_entry_anim_tween.tween_property(speaker_sprite, "global_position:y", speaker_anchor.global_position.y, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	
+	# if speaker has a repeating anim, play it once entry animation is over after a delay
+	if current_vn_section.speaker_animation != VNM.VNSection.speaker_animations.NONE:
+		speaker_entry_anim_tween.finished.connect(func():
+			await get_tree().create_timer(speaker_anim_delay).timeout # delay
+			play_speaker_animation()
+		)
+	
+func play_speaker_animation(): # these anims are meant to run over and over; repeating
+	var anim: VNM.VNSection.speaker_animations = current_vn_section.speaker_animation
+	speaker_anim_tween = create_tween()
+	match anim:
+		VNM.VNSection.speaker_animations.BOB_WEAK:
+			var amplitude: float = 2.5
+			var frequency: float = 2.0
+			var bottom_y: float = speaker_anchor_pos.y + amplitude
+			var top_y: float = speaker_anchor_pos.y - amplitude
+			speaker_anim_tween.tween_property(speaker_sprite, "global_position:y", top_y, frequency).set_trans(Tween.TRANS_CUBIC)
+			speaker_anim_tween.tween_property(speaker_sprite, "global_position:y", bottom_y, frequency).set_trans(Tween.TRANS_CUBIC)
+	
+	speaker_anim_tween.finished.connect(play_speaker_animation) # run over and over
 
 func run_typewriter_code(vn_section: VNM.VNSection):
 	
@@ -79,7 +121,7 @@ func run_typewriter_code(vn_section: VNM.VNSection):
 	# all of dialog is hidden at this stage
 	dialog_revealed = false
 	
-	active_tweens.append(dialog_tween)
+	#active_tweens.append(dialog_tween)
 	
 	for component: String in code.split(","):
 		var a: PackedStringArray = component.split(":")
@@ -121,7 +163,7 @@ func on_dialog_finished():
 	
 	dialog_revealed = true
 	# dialog tween is no longer active
-	active_tweens.erase(dialog_tween)
+	#active_tweens.erase(dialog_tween)
 	
 	if current_vn_section.has_next:
 		show_next_button()
@@ -161,9 +203,12 @@ func option_pressed(vn_option: VNM.VNOption):
 	activate_vn_section(vn_option.next)
 
 func kill_all_tweens():
-	for tween: Tween in active_tweens:
-		tween.kill()
-	active_tweens.clear()
+	#for tween: Tween in active_tweens:
+		#tween.kill()
+	#active_tweens.clear()
+	if dialog_tween: dialog_tween.kill()
+	if speaker_entry_anim_tween: speaker_entry_anim_tween.kill()
+	if speaker_anim_tween: speaker_anim_tween.kill()
 
 
 func skip_current_dialog_typewriting():

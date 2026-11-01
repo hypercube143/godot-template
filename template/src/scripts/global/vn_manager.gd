@@ -88,8 +88,15 @@ class VNSection:
 	var typewrite_delay: float
 	var typewriter_code: String
 	
-	enum speaker_entry_animations {NONE, JUMP, SWAY}
+	enum speaker_entry_animations {
+		NONE, JUMP_FROM_BOTTOM, JUMP_WEAK, JUMP_STRONG
+	}
 	var speaker_entry_animation: speaker_entry_animations
+	
+	enum speaker_animations {
+		NONE, BOB_WEAK
+	}
+	var speaker_animation: speaker_animations
 	
 	enum terminate_modes {ACCEPT, INTERRUPT}
 	var terminate_mode: terminate_modes
@@ -146,6 +153,10 @@ class VNSection:
 			# TODO create animation class?
 			var speaker_entry_animation_str: String = config_file.get_value(str_id, "speaker_entry_animation", "NONE")
 			speaker_entry_animation = speaker_entry_animations.get(speaker_entry_animation_str)
+			
+			# animation speaker continually does after "speaker_entry_animation" finishes
+			var speaker_animation_str: String = config_file.get_value(str_id, "speaker_animation", "NONE")
+			speaker_animation = speaker_animations.get(speaker_animation_str)
 			
 			# determines what happens after dialog text finished typwriting
 			# ACCEPT = requires an accept (e.g enter or space) to move to next section
@@ -252,6 +263,28 @@ class VNMood:
 
 #func _enter_tree() -> void:
 	#print("VN MANAGER ENTERED TREE")
+
+#class VNAnimation: # not worth it to create it here
+	#var tween: Tween
+	#var entity: Node
+	#enum types {
+		#JUMP_FROM_BOTTOM, JUMP_WEAK, JUMP_STRONG
+	#}
+	#var type: types
+	#func _init(e: Variant, t: types) -> void:
+		#type = t
+		## tween = create_tween() # doesn't work for some reasons??
+	#
+	#func run():
+		#match type:
+			#types.JUMP_FROM_BOTTOM:
+				#if entity.name == "SpeakerSprite":
+					#var speaker_texture_size: Vector2 = entity.texture.get_size()
+					#speaker_sprite.global_position = Vector2(speaker_anchor.global_position.x, speaker_anchor.global_position.y + speaker_texture_size.y) # just off screen at the bottom
+					#create_tween().tween_property(speaker_sprite, "global_position:y", speaker_anchor.global_position.y, 0.6).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		#
+	#func kill():
+		#pass
 
 func _ready() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(VN_DIR))
