@@ -87,6 +87,9 @@ class VNSection:
 	
 	var auto_skip: bool
 	var time: float
+	
+	var typewriter_code: String
+	
 	var next: int 
 	
 	var sections: PackedStringArray
@@ -133,6 +136,11 @@ class VNSection:
 			# or whenever next event occurs
 			# if not specified, defaults to skipping instantly
 			time = config_file.get_value(str_id, "time", 0)
+			
+			# for example: "t:25:50,p:1,t" means
+			# typewrite for 25 chars at 50 chars per second, pause for 1 second, typewrite for the rest
+			# "t", the default will write with a consistent rhythm until the end with whatever the default speaking_rate is
+			typewriter_code = config_file.get_value(str_id, "typewriter_code", "t")
 			
 			# the section loaded after dialog finishes or ok occurs 
 			# if not specified, will be treated as the final dialog
