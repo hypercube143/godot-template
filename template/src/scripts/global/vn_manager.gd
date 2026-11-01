@@ -85,15 +85,19 @@ class VNSection:
 	var speaker_str: String
 	var vn_speaker: VNSpeaker
 	
-	var auto_skip: bool
-	var time: float
-	
 	var typewriter_code: String
 	
+	enum terminate_modes {ACCEPT, INTERRUPT}
+	var terminate_mode: terminate_modes
+	var interrupt_buffer: float
+	var skippable: bool
+	
 	var next: int 
+	var has_next: bool
 	
 	var sections: PackedStringArray
 	var options: Array[VNOption]
+	var has_options: bool
 	
 	#var config_file: ConfigFile
 	
@@ -126,26 +130,30 @@ class VNSection:
 			# if not specified, becomes narrator/diconnected voice?
 			speaker_str = config_file.get_value(str_id, "speaker", "narrator")
 			
-			# "auto_skip": whether program will wait for user to press enter or ok.
-			# if true, won't wait for and ok, and will skip after "time" in seconds.
-			# true is intended to be something like an interruption or a soliloquy
-			# if not specified, will default to false: program will have to wait for and ok
-			auto_skip = config_file.get_value(str_id, "auto_skip", false) 
-			
-			# time in seconds text is displayed for until OK option is ready,
-			# or whenever next event occurs
-			# if not specified, defaults to skipping instantly
-			time = config_file.get_value(str_id, "time", 0)
-			
 			# for example: "t:25:50,p:1,t" means
 			# typewrite for 25 chars at 50 chars per second, pause for 1 second, typewrite for the rest
 			# "t", the default will write with a consistent rhythm until the end with whatever the default speaking_rate is
 			typewriter_code = config_file.get_value(str_id, "typewriter_code", "t")
 			
+			# determines what happens after dialog text finished typwriting
+			# ACCEPT = requires an accept (e.g enter or space) to move to next section
+			# INTERRUPT = skips to the next section based on "interrupt_buffer"
+			# ----  INTERRUPT is intended to be something like a soliloquy
+			var terminate_mode_str: String = config_file.get_value(str_id, "terminate_mode", "ACCEPT")
+			terminate_mode = terminate_modes.get(terminate_mode_str)
+			
+			# delay after text finishes to move to next section IFF "terminate_mode" = "INTERRUPT"
+			# defaults to 0 (instant skip)
+			interrupt_buffer = config_file.get_value(str_id, "interrupt_buffer", 0.0)
+			
+			# whether dialog can be skipped by player pressing enter or clicking
+			skippable = config_file.get_value(str_id, "skippable", true)
+			
 			# the section loaded after dialog finishes or ok occurs 
 			# if not specified, will be treated as the final dialog
 			# number for termination = -1, TODO what comes after that?
 			next = config_file.get_value(str_id, "next", -1)
+			has_next = next != -1
 			
 			# load options
 			options = []
@@ -164,7 +172,7 @@ class VNSection:
 				
 					var option: VNOption = VNOption.new(option_text, option_next)
 					options.append(option)
-					
+			has_options = not (options.is_empty())
 			
 			# NON NECESSARY / SCOPE CREEP STUFF TODO
 			
@@ -180,6 +188,7 @@ class VNSection:
 			vn_mood = vn_speaker.moods[mood_str]
 		
 	func _to_string() -> String:
+		# TODO: out of date. automate?
 		return 'VNSection(\n\tdialog = "{dialog}"\n\tspeaker_str = "{speaker_str}"\n\tvn_speaker = {vn_speaker}\n\tmood_str = "{mood_str}"\n\tvn_mood = {vn_mood}\n\tauto_skip = {auto_skip}\n\ttime = {time}\n\tnext = {next}\n\tsections = {sections}\n\toptions = {options}\n)'.format(
 			{
 				"dialog": dialog,
@@ -187,8 +196,6 @@ class VNSection:
 				"vn_speaker": vn_speaker,
 				"mood_str": mood_str,
 				"vn_mood": vn_mood,
-				"auto_skip": auto_skip,
-				"time": time,
 				"next": next,
 				"sections": sections,
 				"options": options,
