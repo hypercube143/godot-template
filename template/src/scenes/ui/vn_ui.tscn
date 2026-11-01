@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" uid="uid://c638eece26xnw" path="res://src/scripts/ui/vn_ui.gd" id="1_d1akx"]
 
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_wwrdi"]
+
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_uig60"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_2a24x"]
@@ -15,6 +17,14 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_d1akx")
+
+[node name="SpeakerAnchor" type="Node2D" parent="." unique_id=1069096082]
+position = Vector2(170, 450)
+
+[node name="SpeakerSprite" type="Sprite2D" parent="." unique_id=734298344]
+position = Vector2(168, 448)
+scale = Vector2(0.5, 0.5)
+texture = SubResource("PlaceholderTexture2D_wwrdi")
 
 [node name="BGTextureRect" type="TextureRect" parent="." unique_id=309157428]
 layout_mode = 0
@@ -51,12 +61,12 @@ texture_normal = SubResource("PlaceholderTexture2D_2a24x")
 
 [node name="Options" type="Control" parent="." unique_id=109854545]
 anchors_preset = 0
-offset_left = 192.0
+offset_left = 384.0
 offset_top = 368.0
 offset_right = 960.0
 offset_bottom = 496.0
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Options" unique_id=605445338]
 layout_mode = 0
-offset_right = 768.0
+offset_right = 576.0
 offset_bottom = 128.0

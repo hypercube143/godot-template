@@ -85,7 +85,11 @@ class VNSection:
 	var speaker_str: String
 	var vn_speaker: VNSpeaker
 	
+	var typewrite_delay: float
 	var typewriter_code: String
+	
+	enum speaker_entry_animations {NONE, JUMP, SWAY}
+	var speaker_entry_animation: speaker_entry_animations
 	
 	enum terminate_modes {ACCEPT, INTERRUPT}
 	var terminate_mode: terminate_modes
@@ -130,10 +134,18 @@ class VNSection:
 			# if not specified, becomes narrator/diconnected voice?
 			speaker_str = config_file.get_value(str_id, "speaker", "narrator")
 			
+			# time in seconds until typewriter typing occurs upon activation
+			typewrite_delay = config_file.get_value(str_id, "typewriter_delay", 0.0)
+			
 			# for example: "t:25:50,p:1,t" means
 			# typewrite for 25 chars at 50 chars per second, pause for 1 second, typewrite for the rest
 			# "t", the default will write with a consistent rhythm until the end with whatever the default speaking_rate is
 			typewriter_code = config_file.get_value(str_id, "typewriter_code", "t")
+			
+			# animation speaker does when VNSection activates
+			# TODO create animation class?
+			var speaker_entry_animation_str: String = config_file.get_value(str_id, "speaker_entry_animation", "NONE")
+			speaker_entry_animation = speaker_entry_animations.get(speaker_entry_animation_str)
 			
 			# determines what happens after dialog text finished typwriting
 			# ACCEPT = requires an accept (e.g enter or space) to move to next section

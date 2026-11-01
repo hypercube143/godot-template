@@ -7,6 +7,9 @@ extends Control
 
 @onready var options_container: VBoxContainer = $Options/VBoxContainer
 
+@onready var speaker_anchor: Node2D = $SpeakerAnchor
+@onready var speaker_sprite: Sprite2D = $SpeakerSprite
+
 @onready var vn_ui_option_scene: PackedScene = preload("res://src/scenes/ui/vn_ui_option.tscn")
 
 var current_vn_section: VNM.VNSection
@@ -35,19 +38,29 @@ func activate_vn_section(id: int):
 	
 	# Tweens
 	dialog_tween = create_tween()
+	dialog_tween.tween_interval(current_vn_section.typewrite_delay)
 	dialog_tween.finished.connect(on_dialog_finished)
-	
 	
 	# VISUAL SETUP
 	speaker_name_label.text = current_vn_section.vn_speaker.display_name
 	
+	speaker_sprite.texture = load(current_vn_section.vn_mood.texture_path)
+	
+	play_speaker_entry_animation()
 	hide_next_button()
 	hide_options()
 	
 	# TWEENING, FUNCTIONING
 	run_typewriter_code(current_vn_section)
 	load_options()
-
+	
+func play_speaker_entry_animation():
+	var anim: VNM.VNSection.speaker_entry_animations = current_vn_section.speaker_entry_animation
+	match anim:
+		VNM.VNSection.speaker_entry_animations.JUMP:
+			var speaker_texture_size: Vector2 = speaker_sprite.texture.get_size()
+			speaker_sprite.global_position = Vector2(speaker_anchor.global_position.x, speaker_anchor.global_position.y + speaker_texture_size.y) # just off screen at the bottom
+			create_tween().tween_property(speaker_sprite, "global_position:y", speaker_anchor.global_position.y, 0.6).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 func run_typewriter_code(vn_section: VNM.VNSection):
 	
