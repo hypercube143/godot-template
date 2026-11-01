@@ -18,14 +18,6 @@ func _ready() -> void:
 	print(vn_section)
 	
 	speaker_name_label.text = vn_section.vn_speaker.display_name
-	#dialog_label.text = vn_section.dialog
-	#
-	#dialog_label.visible_ratio = 0.0
-	#var speaking_rate: float = vn_section.vn_mood.speaking_rate
-	#var total_dialog_chars: int = len(vn_section.dialog)
-	#var total_parsed_dialog_chars: int = len(dialog_label.get_parsed_text())
-	#var dialog_time: float = (1.0 / speaking_rate) * total_parsed_dialog_chars
-	#create_tween().tween_property(dialog_label, "visible_ratio", 1.0, dialog_time)
 	
 	run_typewriter_code(vn_section)
 	
@@ -44,6 +36,9 @@ func run_typewriter_code(vn_section: VNM.VNSection):
 	
 	dialog_label.visible_ratio = 0.0
 	dialog_label.text = dialog
+	
+	var dialog_tween: Tween = create_tween()
+	active_tweens.append(dialog_tween)
 	
 	for component: String in code.split(","):
 		var a: PackedStringArray = component.split(":")
@@ -71,18 +66,13 @@ func run_typewriter_code(vn_section: VNM.VNSection):
 			else: # typewrite until val
 				char_cursor += val
 				visible_ratio = char_cursor / float(dialog_length)
-				print(visible_ratio)
-				print(char_cursor)
-				print(dialog_length)
-			var time: float = (1.0 / chars_per_second) * val # time it takes to typewrite 'val' many chars according to 'chars_per_second'
-			var dialog_tween: Tween = create_tween()
 			
-			active_tweens.append(dialog_tween)
+			var time: float = (1.0 / chars_per_second) * val # time it takes to typewrite 'val' many chars according to 'chars_per_second'
+			
 			dialog_tween.tween_property(dialog_label, "visible_ratio", visible_ratio, time)
-			dialog_tween.finished.connect(func(): active_tweens.erase(dialog_tween))
-			await get_tree().create_timer(time).timeout
+			
 		if mode == "p": # pause for val seconds
-			await get_tree().create_timer(val).timeout
+			dialog_tween.tween_interval(val)
 		
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
