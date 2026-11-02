@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" uid="uid://c638eece26xnw" path="res://src/scripts/ui/vn_ui.gd" id="1_d1akx"]
 
+[sub_resource type="Theme" id="Theme_d1akx"]
+
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_wwrdi"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_uig60"]
@@ -16,57 +18,60 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = SubResource("Theme_d1akx")
 script = ExtResource("1_d1akx")
 
 [node name="SpeakerAnchor" type="Node2D" parent="." unique_id=1069096082]
-position = Vector2(170, 450)
+position = Vector2(170.25, 914)
 
 [node name="SpeakerSprite" type="Sprite2D" parent="." unique_id=734298344]
-position = Vector2(168, 448)
+position = Vector2(168.25, 912)
 scale = Vector2(0.5, 0.5)
 texture = SubResource("PlaceholderTexture2D_wwrdi")
 
 [node name="BGTextureRect" type="TextureRect" parent="." unique_id=309157428]
 layout_mode = 0
-offset_left = 192.0
-offset_top = 496.0
-offset_right = 960.0
-offset_bottom = 632.0
+offset_left = 192.25
+offset_top = 960.0
+offset_right = 1408.25
+offset_bottom = 1168.0
 texture = SubResource("PlaceholderTexture2D_uig60")
 
 [node name="SpeakerNameLabel" type="Label" parent="." unique_id=1604611043]
 layout_mode = 0
-offset_left = 208.0
-offset_top = 504.0
-offset_right = 440.0
-offset_bottom = 543.0
+offset_left = 208.25
+offset_top = 960.0
+offset_right = 496.25
+offset_bottom = 1018.0
+theme_override_font_sizes/font_size = 42
 text = "speaker name"
 
 [node name="DialogLabel" type="RichTextLabel" parent="." unique_id=1080702629]
 layout_mode = 0
-offset_left = 208.0
-offset_top = 536.0
-offset_right = 944.0
-offset_bottom = 615.0
+offset_left = 208.25
+offset_top = 1024.0
+offset_right = 1256.25
+offset_bottom = 1144.0
+theme_override_font_sizes/normal_font_size = 32
 bbcode_enabled = true
 text = "dialog"
 
 [node name="NextButton" type="TextureButton" parent="." unique_id=701087045]
 layout_mode = 0
-offset_left = 880.0
-offset_top = 592.0
-offset_right = 955.0
-offset_bottom = 627.0
+offset_left = 1272.25
+offset_top = 1120.0
+offset_right = 1395.25
+offset_bottom = 1155.0
 texture_normal = SubResource("PlaceholderTexture2D_2a24x")
 
 [node name="Options" type="Control" parent="." unique_id=109854545]
 anchors_preset = 0
-offset_left = 384.0
-offset_top = 368.0
-offset_right = 960.0
-offset_bottom = 496.0
+offset_left = 496.25
+offset_top = 752.0
+offset_right = 1408.25
+offset_bottom = 960.0
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Options" unique_id=605445338]
 layout_mode = 0
-offset_right = 576.0
-offset_bottom = 128.0
+offset_right = 912.0
+offset_bottom = 208.0

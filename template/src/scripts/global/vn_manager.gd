@@ -286,10 +286,34 @@ class VNMood:
 	#func kill():
 		#pass
 
+func count_total_dialog() -> Array[int]: # total lines, total chars, total_words - includes "text" and "dialog" anywhere
+	var total_lines: int
+	var total_chars: int
+	var total_words: int
+	for act: ACTS in ACTS.values():
+		load_vn_act_file(act)
+		for section: String in vn_act_file.get_sections():
+			for component: String in ["dialog", "text"]:
+				var component_data = vn_act_file.get_value(section, component, "")
+				if component_data and component_data != "":
+					total_lines += 1
+					total_chars += len(component_data)
+					total_words += len(component_data.split(" "))
+	return [total_lines, total_chars, total_words]
+		
+
 func _ready() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(VN_DIR))
 	load_vn_settings_file()
 	load_vn_speakers_file()
+	
+	# TESTING TODO REMOVE LATER
+	var dialog_stats: Array[int] = count_total_dialog()
+	Util.dprint("total lines: " + str(dialog_stats[0]))
+	Util.dprint("total chars: " + str(dialog_stats[1]))
+	Util.dprint("total words: " + str(dialog_stats[2]))
+	
+	
 	
 	#print("starting loading vn files")
 	
